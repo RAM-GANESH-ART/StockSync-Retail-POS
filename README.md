@@ -1,17 +1,22 @@
 # ⚡ StockSync — Retail Inventory & POS Billing Application
 
 [![Next.js 15](https://img.shields.io/badge/Next.js-15.2.0-black?logo=next.js)](https://nextjs.org/)
+[![Zustand](https://img.shields.io/badge/Zustand-State%20Management-443e38)](https://github.com/pmndrs/zustand)
 [![Prisma 6](https://img.shields.io/badge/Prisma-6.4.0-2D3748?logo=prisma)](https://www.prisma.io/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Sonner](https://img.shields.io/badge/Sonner-Modern%20Toasts-black)](https://sonner.emilkowal.ski/)
 [![Vitest](https://img.shields.io/badge/Vitest-3.2-6E9F18?logo=vitest)](https://vitest.dev/)
 [![CI Quality Gate](https://img.shields.io/badge/CI-Automated%20Quality%20Gate-success?logo=github-actions)](https://github.com/RAM-GANESH-ART/StockSync-Retail-POS)
 
-StockSync is a full-stack, enterprise-grade retail inventory management and Point-of-Sale (POS) billing web application built with **Next.js 15 (App Router)**, **Prisma 6 (SQLite)**, **NextAuth**, and **Custom Vanilla CSS**.
+StockSync is a full-stack, enterprise-grade retail inventory management and Point-of-Sale (POS) billing web application built with **Next.js 15 (App Router)**, **Zustand**, **Prisma 6 (SQLite)**, **Sonner**, **JsBarcode**, **NextAuth**, and **Custom Vanilla CSS**.
 
 ---
 
 ## 🌟 Key Highlights
 
+- **⚡ Zustand High-Speed POS Store**: Zero-latency register state management, instant cart line-item updates, quantity steppers, and reactive totals.
+- **🔔 Sonner Toast Notifications**: Modern floating feedback on item scans, stock replenishments, and completed invoice generations.
+- **🏷️ Real Scannable Barcodes (JsBarcode)**: Hardware-scanner-readable Code128 and EAN13 barcodes rendered on thermal receipts and catalog cards.
 - **⚡ Fast POS Billing Register**: Instant product lookup by barcode scanner, SKU, or name; keyboard shortcuts; quantity adjustments; tax & discount calculation.
 - **💳 Multi-Payment Checkout**: Process payments via Cash (with customer cash tendered & live change return calculator), Card EDC terminal, or Counter UPI QR code scanning.
 - **🧾 Thermal Receipt Generator**: Formatted specifically for standard 80mm POS thermal receipt printers with one-click print support, tax breakdowns, and rendered barcodes.
@@ -19,7 +24,7 @@ StockSync is a full-stack, enterprise-grade retail inventory management and Poin
 - **⚠️ Low-Stock Threshold Badges**: Automatic warnings for products dropping below minimum safety stock levels with 1-click quick replenishment.
 - **📊 Executive Analytics Dashboard**: Live sales revenue, 7-day transaction velocity charts (Recharts), top-selling SKUs, and transaction history.
 - **🛡️ Role-Based Access Control**: Separate privileges for **Store Manager (Admin)** and **POS Operator (Cashier)** with 1-click demo login buttons.
-- **📁 Clean Architecture**: Clear separation between `src/frontend/` (UI components, modals, styles) and `src/backend/` (Prisma DB, services, auth, Zod validation). See [ARCHITECTURE.md](ARCHITECTURE.md).
+- **📁 Clean Architecture**: Clear separation between `src/frontend/` (UI components, modals, styles, store) and `src/backend/` (Prisma DB, services, auth, Zod validation). See [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ---
 

@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { Navbar } from "@/frontend/components/Navbar";
-import { ProductItem, CartItem, SaleSummary } from "@/types";
-import { calculateSubtotal, calculateTax, calculateDiscount, calculateTotal } from "@/lib/cart-utils";
+import { ProductItem, SaleSummary } from "@/types";
+import { usePosStore } from "@/frontend/store/use-pos-store";
 import { CheckoutModal } from "@/frontend/components/CheckoutModal";
 import { ThermalReceiptModal } from "@/frontend/components/ThermalReceiptModal";
+import { BarcodeRenderer } from "@/frontend/components/BarcodeRenderer";
+import { toast } from "sonner";
 import {
   Search,
   ShoppingCart,
@@ -23,16 +25,35 @@ import {
 export default function PosRegisterPage() {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string }[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState("ALL");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [discountPercentage, setDiscountPercentage] = useState<number>(0);
   const [currentTime, setCurrentTime] = useState<string>("");
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
-  const [completedSale, setCompletedSale] = useState<SaleSummary | null>(null);
-  const [isReceiptOpen, setIsReceiptOpen] = useState(false);
 
   const barcodeInputRef = useRef<HTMLInputElement>(null);
+
+  // Zustand Store
+  const {
+    cart,
+    addToCart,
+    updateQuantity,
+    removeFromCart,
+    clearCart,
+    discountPercentage,
+    setDiscountPercentage,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    isCheckoutOpen,
+    setCheckoutOpen,
+    isReceiptOpen,
+    setReceiptOpen,
+    completedSale,
+    setCompletedSale,
+    getSubtotal,
+    getTax,
+    getDiscount,
+    getTotal,
+    getTotalUnits,
+  } = usePosStore();
 
   // Defer time calculation with useEffect to guarantee zero hydration mismatch
   useEffect(() => {
@@ -67,76 +88,6 @@ export default function PosRegisterPage() {
     fetchCatalog();
   }, [fetchCatalog]);
 
-  // Cart operations
-  const addToCart = (product: ProductItem) => {
-    if (product.stock <= 0) {
-      alert(`"${product.name}" is currently out of stock.`);
-      return;
-    }
-
-    setCart((prev) => {
-      const existingIdx = prev.findIndex((item) => item.product.id === product.id);
-      if (existingIdx > -1) {
-        const item = prev[existingIdx];
-        if (item.quantity + 1 > product.stock) {
-          alert(`Cannot add more. Only ${product.stock} units available in inventory.`);
-          return prev;
-        }
-        const updated = [...prev];
-        updated[existingIdx] = {
-          ...item,
-          quantity: item.quantity + 1,
-          totalPrice: (item.quantity + 1) * item.unitPrice,
-        };
-        return updated;
-      } else {
-        return [
-          ...prev,
-          {
-            product,
-            quantity: 1,
-            unitPrice: product.price,
-            totalPrice: product.price,
-          },
-        ];
-      }
-    });
-  };
-
-  const updateQuantity = (productId: string, delta: number) => {
-    setCart((prev) => {
-      return prev
-        .map((item) => {
-          if (item.product.id === productId) {
-            const newQty = item.quantity + delta;
-            if (newQty <= 0) return null;
-            if (newQty > item.product.stock) {
-              alert(`Maximum stock limit reached (${item.product.stock} units).`);
-              return item;
-            }
-            return {
-              ...item,
-              quantity: newQty,
-              totalPrice: newQty * item.unitPrice,
-            };
-          }
-          return item;
-        })
-        .filter(Boolean) as CartItem[];
-    });
-  };
-
-  const removeFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.product.id !== productId));
-  };
-
-  const clearCart = () => {
-    if (cart.length > 0 && confirm("Are you sure you want to clear the active register cart?")) {
-      setCart([]);
-      setDiscountPercentage(0);
-    }
-  };
-
   // Barcode / Fast search enter handler
   const handleBarcodeSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,7 +105,7 @@ export default function PosRegisterPage() {
       addToCart(matched);
       setSearchQuery("");
     } else {
-      alert(`No product matching barcode or SKU "${searchQuery}" found.`);
+      toast.error(`No product matching barcode or SKU "${searchQuery}" found.`);
     }
   };
 
@@ -170,19 +121,18 @@ export default function PosRegisterPage() {
     return matchesCategory && matchesSearch;
   });
 
-  // Calculate totals
-  const subtotal = calculateSubtotal(cart);
-  const taxAmount = calculateTax(subtotal, 5);
-  const discountAmount = calculateDiscount(subtotal, discountPercentage);
-  const totalAmount = calculateTotal(subtotal, taxAmount, discountAmount);
+  const subtotal = getSubtotal();
+  const taxAmount = getTax();
+  const discountAmount = getDiscount();
+  const totalAmount = getTotal();
+  const totalUnits = getTotalUnits();
 
   // On sale success
   const handleSaleSuccess = (sale: SaleSummary) => {
     setCompletedSale(sale);
-    setCart([]);
-    setDiscountPercentage(0);
-    setIsReceiptOpen(true);
+    setReceiptOpen(true);
     fetchCatalog(); // Refresh inventory stock immediately
+    toast.success(`Transaction Completed! Invoice #${sale.saleNumber}`);
   };
 
   return (
@@ -205,7 +155,7 @@ export default function PosRegisterPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
               <h1 style={{ fontSize: "1.25rem", fontWeight: 700 }}>POS Billing Register</h1>
               <span className="badge badge-primary mono" style={{ fontSize: "0.7rem" }}>
-                TERMINAL #01
+                TERMINAL #01 (ZUSTAND STORE)
               </span>
             </div>
 
@@ -335,7 +285,7 @@ export default function PosRegisterPage() {
                         display: "flex",
                         flexDirection: "column",
                         justifyContent: "space-between",
-                        minHeight: "150px",
+                        minHeight: "160px",
                         position: "relative",
                       }}
                     >
@@ -355,7 +305,7 @@ export default function PosRegisterPage() {
                             fontSize: "0.9rem",
                             fontWeight: 600,
                             lineHeight: 1.3,
-                            marginBottom: "0.5rem",
+                            marginBottom: "0.4rem",
                           }}
                         >
                           {p.name}
@@ -363,6 +313,17 @@ export default function PosRegisterPage() {
                       </div>
 
                       <div>
+                        {/* Real scannable barcode snippet */}
+                        <div style={{ margin: "4px 0", height: "22px", overflow: "hidden" }}>
+                          <BarcodeRenderer
+                            value={p.barcode}
+                            displayValue={false}
+                            height={18}
+                            width={1}
+                            lineColor="var(--text-muted)"
+                          />
+                        </div>
+
                         <div
                           style={{
                             display: "flex",
@@ -438,7 +399,7 @@ export default function PosRegisterPage() {
                   </span>
                 </div>
                 <span className="badge badge-primary mono">
-                  {cart.reduce((a, b) => a + b.quantity, 0)} Units
+                  {totalUnits} Units
                 </span>
               </div>
 
@@ -618,7 +579,7 @@ export default function PosRegisterPage() {
               <button
                 type="button"
                 disabled={cart.length === 0}
-                onClick={() => setIsCheckoutOpen(true)}
+                onClick={() => setCheckoutOpen(true)}
                 className="btn btn-primary btn-lg"
                 style={{ width: "100%", marginTop: "1rem" }}
               >
@@ -633,7 +594,7 @@ export default function PosRegisterPage() {
       {/* Checkout Modal */}
       <CheckoutModal
         isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
+        onClose={() => setCheckoutOpen(false)}
         cart={cart}
         subtotal={subtotal}
         taxAmount={taxAmount}
@@ -646,7 +607,7 @@ export default function PosRegisterPage() {
       {/* Thermal Receipt Print Modal */}
       <ThermalReceiptModal
         isOpen={isReceiptOpen}
-        onClose={() => setIsReceiptOpen(false)}
+        onClose={() => setReceiptOpen(false)}
         sale={completedSale}
       />
     </div>

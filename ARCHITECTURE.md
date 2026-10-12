@@ -18,12 +18,15 @@ stocksync-retail-pos/
 │   ├── frontend/                # 🎨 ALL FRONTEND (UI & CLIENT LOGIC)
 │   │   ├── styles/
 │   │   │   └── globals.css      # Custom Vanilla CSS Design System, dark/light theme tokens, 80mm print rules
+│   │   ├── store/
+│   │   │   └── use-pos-store.ts # Zustand high-speed POS cart and terminal state store
 │   │   └── components/
 │   │       ├── Navbar.tsx             # Main navigation bar with role badge & dark/light theme toggle
 │   │       ├── CheckoutModal.tsx      # Payment dialog (Cash change calculator, Card EDC, Counter UPI QR)
-│   │       ├── ThermalReceiptModal.tsx  # Printable 80mm thermal receipt with visual barcode & window.print()
+│   │       ├── ThermalReceiptModal.tsx  # Printable 80mm thermal receipt with authentic JsBarcode & window.print()
+│   │       ├── BarcodeRenderer.tsx    # JsBarcode real scannable Code128 / EAN13 barcode component
 │   │       ├── ProductFormModal.tsx   # Add / Edit inventory item modal with field validation
-│   │       └── Providers.tsx          # NextAuth client SessionProvider context wrapper
+│   │       └── Providers.tsx          # NextAuth SessionProvider and Sonner Toaster wrapper
 │   │
 │   ├── backend/                 # ⚙️ ALL BACKEND (DATABASE, SERVICES & LOGIC)
 │   │   ├── db/

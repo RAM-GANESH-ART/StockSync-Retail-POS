@@ -2,6 +2,7 @@
 
 import React from "react";
 import { SaleSummary } from "@/types";
+import { BarcodeRenderer } from "./BarcodeRenderer";
 import { Printer, CheckCircle, X, ShoppingBag } from "lucide-react";
 
 interface ThermalReceiptModalProps {
@@ -130,49 +131,16 @@ export function ThermalReceiptModal({
           </div>
 
           <div className="receipt-footer">
-            {/* Visual Barcode SVG simulation */}
-            <svg
-              width="200"
-              height="38"
-              viewBox="0 0 200 38"
-              style={{ margin: "0 auto 4px auto", display: "block" }}
-            >
-              <g fill="#000000">
-                <rect x="10" y="0" width="3" height="30" />
-                <rect x="15" y="0" width="1" height="30" />
-                <rect x="18" y="0" width="4" height="30" />
-                <rect x="25" y="0" width="2" height="30" />
-                <rect x="30" y="0" width="1" height="30" />
-                <rect x="33" y="0" width="3" height="30" />
-                <rect x="40" y="0" width="5" height="30" />
-                <rect x="48" y="0" width="2" height="30" />
-                <rect x="53" y="0" width="3" height="30" />
-                <rect x="60" y="0" width="1" height="30" />
-                <rect x="64" y="0" width="4" height="30" />
-                <rect x="72" y="0" width="2" height="30" />
-                <rect x="78" y="0" width="3" height="30" />
-                <rect x="85" y="0" width="1" height="30" />
-                <rect x="90" y="0" width="4" height="30" />
-                <rect x="98" y="0" width="2" height="30" />
-                <rect x="104" y="0" width="5" height="30" />
-                <rect x="112" y="0" width="1" height="30" />
-                <rect x="116" y="0" width="3" height="30" />
-                <rect x="122" y="0" width="4" height="30" />
-                <rect x="130" y="0" width="2" height="30" />
-                <rect x="135" y="0" width="3" height="30" />
-                <rect x="142" y="0" width="1" height="30" />
-                <rect x="148" y="0" width="4" height="30" />
-                <rect x="155" y="0" width="2" height="30" />
-                <rect x="160" y="0" width="3" height="30" />
-                <rect x="166" y="0" width="1" height="30" />
-                <rect x="170" y="0" width="4" height="30" />
-                <rect x="178" y="0" width="2" height="30" />
-                <rect x="184" y="0" width="3" height="30" />
-              </g>
-              <text x="100" y="37" textAnchor="middle" fontSize="9" fontFamily="monospace">
-                {sale.saleNumber}
-              </text>
-            </svg>
+            {/* Real scannable barcode rendered by JsBarcode */}
+            <div style={{ margin: "6px 0" }}>
+              <BarcodeRenderer
+                value={sale.saleNumber}
+                format="CODE128"
+                width={1.4}
+                height={32}
+                fontSize={10}
+              />
+            </div>
             <div>THANK YOU FOR SHOPPING WITH US!</div>
             <div>Goods once sold can be exchanged within 7 days.</div>
           </div>

@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { Navbar } from "@/frontend/components/Navbar";
 import { ProductItem } from "@/types";
 import { ProductFormModal } from "@/frontend/components/ProductFormModal";
+import { toast } from "sonner";
 import {
   Package,
   Plus,
@@ -62,10 +63,12 @@ export default function InventoryPage() {
         body: JSON.stringify({ stock: product.stock + 5 }),
       });
       if (res.ok) {
+        toast.success(`Restocked +5 units for ${product.name}`);
         fetchProducts();
       }
     } catch (err) {
       console.error("Error restocking:", err);
+      toast.error("Failed to update stock");
     }
   };
 
@@ -76,10 +79,12 @@ export default function InventoryPage() {
     try {
       const res = await fetch(`/api/products/${id}`, { method: "DELETE" });
       if (res.ok) {
+        toast.info(`Deleted "${name}" from catalog`);
         fetchProducts();
       }
     } catch (err) {
       console.error("Error deleting product:", err);
+      toast.error("Failed to delete product");
     }
   };
 
