@@ -14,7 +14,8 @@
     "prisma:seed": "tsx prisma/seed.ts",
     "prisma:studio": "prisma studio",
     "db:sqlite": "tsx scripts/switch-db.ts sqlite",
-    "db:postgres": "tsx scripts/switch-db.ts postgres"
+    "db:postgres": "tsx scripts/switch-db.ts postgres",
+    "db:ingest": "tsx scripts/ingest-datasets.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

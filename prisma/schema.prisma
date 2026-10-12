@@ -41,6 +41,8 @@ model Product {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   saleItems     SaleItem[]
+
+  @@index([categoryId])
 }
 
 model Sale {
@@ -56,6 +58,9 @@ model Sale {
   cashier        User       @relation(fields: [cashierId], references: [id])
   createdAt      DateTime   @default(now())
   items          SaleItem[]
+
+  @@index([createdAt])
+  @@index([cashierId])
 }
 
 model SaleItem {
@@ -67,4 +72,7 @@ model SaleItem {
   quantity   Int
   unitPrice  Float
   totalPrice Float
+
+  @@index([saleId])
+  @@index([productId])
 }

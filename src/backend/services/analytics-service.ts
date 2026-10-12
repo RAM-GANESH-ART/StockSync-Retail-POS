@@ -1,27 +1,32 @@
 import { prisma } from "@/backend/db/prisma";
 
 export async function getStoreAnalytics() {
-  const totalSales = await prisma.sale.findMany({
-    select: {
-      totalAmount: true,
-      createdAt: true,
-    },
+  // 1. Database-level aggregation for total revenue & transaction count
+  const allSalesAgg = await prisma.sale.aggregate({
+    _sum: { totalAmount: true },
+    _count: true,
   });
 
-  const totalRevenue = totalSales.reduce((acc, s) => acc + s.totalAmount, 0);
-  const totalTransactions = totalSales.length;
+  const totalRevenue = allSalesAgg._sum.totalAmount || 0;
+  const totalTransactions = allSalesAgg._count || 0;
 
+  // 2. Today's Revenue
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const todaySales = totalSales.filter((s) => new Date(s.createdAt) >= today);
-  const todayRevenue = todaySales.reduce((acc, s) => acc + s.totalAmount, 0);
+  const todayAgg = await prisma.sale.aggregate({
+    where: { createdAt: { gte: today } },
+    _sum: { totalAmount: true },
+  });
+  const todayRevenue = todayAgg._sum.totalAmount || 0;
 
+  // 3. Low Stock Alert Count (from 500 catalog items)
   const products = await prisma.product.findMany({
     select: { stock: true, minStockAlert: true },
   });
   const lowStockCount = products.filter((p) => p.stock <= p.minStockAlert).length;
 
+  // 4. Optimized 7-Day Revenue Trend (only querying sales in the 7-day window)
   const sevenDaysAgo = new Date();
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
   sevenDaysAgo.setHours(0, 0, 0, 0);
@@ -34,13 +39,16 @@ export async function getStoreAnalytics() {
     daysMap[key] = 0;
   }
 
-  totalSales.forEach((s) => {
+  const recentWindowSales = await prisma.sale.findMany({
+    where: { createdAt: { gte: sevenDaysAgo } },
+    select: { totalAmount: true, createdAt: true },
+  });
+
+  recentWindowSales.forEach((s) => {
     const d = new Date(s.createdAt);
-    if (d >= sevenDaysAgo) {
-      const key = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
-      if (daysMap[key] !== undefined) {
-        daysMap[key] += s.totalAmount;
-      }
+    const key = d.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+    if (daysMap[key] !== undefined) {
+      daysMap[key] += s.totalAmount;
     }
   });
 
@@ -49,32 +57,39 @@ export async function getStoreAnalytics() {
     revenue: Math.round(revenue * 100) / 100,
   }));
 
-  const saleItems = await prisma.saleItem.findMany({
-    include: {
-      product: { select: { name: true, sku: true } },
+  // 5. Optimized Top 5 Products by Revenue (using groupBy aggregation)
+  const topItemGroups = await prisma.saleItem.groupBy({
+    by: ["productId"],
+    _sum: {
+      quantity: true,
+      totalPrice: true,
     },
+    orderBy: {
+      _sum: {
+        totalPrice: "desc",
+      },
+    },
+    take: 5,
   });
 
-  const productSalesMap: Record<string, { name: string; sku: string; unitsSold: number; totalRevenue: number }> = {};
+  const productIds = topItemGroups.map((g) => g.productId);
+  const topProductRecords = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+    select: { id: true, name: true, sku: true },
+  });
+  const productMetaMap = new Map(topProductRecords.map((p) => [p.id, p]));
 
-  saleItems.forEach((item) => {
-    const pId = item.productId;
-    if (!productSalesMap[pId]) {
-      productSalesMap[pId] = {
-        name: item.product.name,
-        sku: item.product.sku,
-        unitsSold: 0,
-        totalRevenue: 0,
-      };
-    }
-    productSalesMap[pId].unitsSold += item.quantity;
-    productSalesMap[pId].totalRevenue += item.totalPrice;
+  const topProducts = topItemGroups.map((g) => {
+    const meta = productMetaMap.get(g.productId);
+    return {
+      name: meta?.name || "Product",
+      sku: meta?.sku || "SKU",
+      unitsSold: g._sum.quantity || 0,
+      totalRevenue: Math.round((g._sum.totalPrice || 0) * 100) / 100,
+    };
   });
 
-  const topProducts = Object.values(productSalesMap)
-    .sort((a, b) => b.totalRevenue - a.totalRevenue)
-    .slice(0, 5);
-
+  // 6. Recent 10 Sales Ledger (Indexed lookup)
   const recentSales = await prisma.sale.findMany({
     take: 10,
     orderBy: { createdAt: "desc" },
@@ -90,8 +105,8 @@ export async function getStoreAnalytics() {
 
   return {
     metrics: {
-      totalRevenue,
-      todayRevenue,
+      totalRevenue: Math.round(totalRevenue * 100) / 100,
+      todayRevenue: Math.round(todayRevenue * 100) / 100,
       totalTransactions,
       lowStockCount,
     },
@@ -112,7 +127,7 @@ export async function getStoreAnalytics() {
       items: s.items.map((it) => ({
         id: it.id,
         productId: it.productId,
-        productName: it.product.name,
+        productName: it.product?.name || "Item",
         quantity: it.quantity,
         unitPrice: it.unitPrice,
         totalPrice: it.totalPrice,
