@@ -49,7 +49,7 @@ export default function HomePage() {
                   marginBottom: "2rem",
                 }}
               >
-                Designed for retail counter speed. Real-time barcode scanning, atomic SQLite stock depletion, multi-payment support (Cash, Card, Counter UPI), and thermal receipt printing.
+                Designed for retail counter speed. Real-time barcode scanning, atomic PostgreSQL stock depletion, multi-payment support (Cash, Card, Counter UPI), and thermal receipt printing.
               </p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
