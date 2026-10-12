@@ -104,7 +104,7 @@ npm run build
 | `src/backend/auth/` | NextAuth configuration and credentials handler |
 | `src/backend/schemas/` | Zod schemas for input validation |
 | `src/app/` | Next.js App Router pages and API routes |
-| `.github/workflows/` | GitHub Actions CI/CD automation pipeline |
+| `ci/` | CI/CD automation pipeline specification |
 
 For in-depth architectural details, refer to [ARCHITECTURE.md](ARCHITECTURE.md).
 

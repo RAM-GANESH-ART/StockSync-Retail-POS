@@ -8,9 +8,8 @@ This document explains the codebase separation between **Frontend** and **Backen
 
 ```text
 stocksync-retail-pos/
-├── .github/
-│   └── workflows/
-│       └── ci.yml               # Automated CI Quality Gate (Lint, Types, Vitest, Build)
+├── ci/
+│   └── ci.yml                   # Automated CI Quality Gate (Lint, Types, Vitest, Build)
 ├── prisma/
 │   ├── schema.prisma            # SQLite database schema (User, Product, Category, Sale, SaleItem)
 │   └── seed.ts                  # Retail inventory seed data & demo accounts (Admin & Cashier)
