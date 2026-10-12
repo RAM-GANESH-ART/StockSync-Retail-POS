@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/frontend/components/Navbar";
 import { ProductItem } from "@/types";
-import { ProductFormModal } from "@/components/ProductFormModal";
+import { ProductFormModal } from "@/frontend/components/ProductFormModal";
 import {
   Package,
   Plus,

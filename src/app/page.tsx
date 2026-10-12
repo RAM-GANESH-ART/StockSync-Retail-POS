@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { Navbar } from "@/components/Navbar";
+import { Navbar } from "@/frontend/components/Navbar";
 import { ShoppingCart, Package, BarChart3, ShieldCheck, Zap, Receipt, ArrowRight } from "lucide-react";
 
 export default function HomePage() {
@@ -49,7 +49,7 @@ export default function HomePage() {
                   marginBottom: "2rem",
                 }}
               >
-                Designed for retail counter speed. Real-time barcode scanning, atomic SQLite stock depletion, keyless Razorpay sandbox simulator, and thermal receipt generation.
+                Designed for retail counter speed. Real-time barcode scanning, atomic SQLite stock depletion, multi-payment support (Cash, Card, Counter UPI), and thermal receipt printing.
               </p>
 
               <div style={{ display: "flex", flexWrap: "wrap", gap: "1rem" }}>
@@ -115,10 +115,10 @@ export default function HomePage() {
                 <Receipt size={22} />
               </div>
               <h3 className="card-title" style={{ marginBottom: "0.5rem" }}>
-                Keyless Razorpay & Thermal Receipts
+                Multi-Payment & Thermal Receipts
               </h3>
               <p style={{ color: "var(--text-secondary)", fontSize: "0.875rem", lineHeight: 1.5 }}>
-                Integrated sandbox simulator with simulated payment callbacks, auto-decrement transactions, and 80mm thermal receipt printing.
+                Instant checkout supporting Cash (with change calculator), Card EDC, and Counter UPI QR scanning with 80mm thermal receipt printing.
               </p>
             </div>
 
