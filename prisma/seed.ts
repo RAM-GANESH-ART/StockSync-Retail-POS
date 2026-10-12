@@ -224,7 +224,7 @@ async function main() {
       taxAmount: 134.95,
       discountAmount: 0,
       totalAmount: 2833.95,
-      paymentMethod: "RAZORPAY_SIM",
+      paymentMethod: "UPI",
       paymentStatus: "COMPLETED",
       cashierId: cashier.id,
       items: {

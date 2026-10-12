@@ -11,7 +11,7 @@ stocksync-retail-pos/
 ├── ci/
 │   └── ci.yml                   # Automated CI Quality Gate (Lint, Types, Vitest, Build)
 ├── prisma/
-│   ├── schema.prisma            # SQLite database schema (User, Product, Category, Sale, SaleItem)
+│   ├── schema.prisma            # PostgreSQL database schema (User, Product, Category, Sale, SaleItem)
 │   └── seed.ts                  # Retail inventory seed data & demo accounts (Admin & Cashier)
 │
 ├── src/
@@ -30,7 +30,7 @@ stocksync-retail-pos/
 │   │
 │   ├── backend/                 # ⚙️ ALL BACKEND (DATABASE, SERVICES & LOGIC)
 │   │   ├── db/
-│   │   │   └── prisma.ts        # PrismaClient global singleton for SQLite connection
+│   │   │   └── prisma.ts        # PrismaClient global singleton for PostgreSQL connection
 │   │   ├── auth/
 │   │   │   └── auth.ts          # NextAuth configuration, credentials provider, bcrypt hash checks
 │   │   ├── schemas/

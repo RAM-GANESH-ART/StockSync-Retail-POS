@@ -1,5 +1,5 @@
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -50,7 +50,7 @@ model Sale {
   taxAmount      Float
   discountAmount Float      @default(0)
   totalAmount    Float
-  paymentMethod  String     // "CASH", "CARD", "RAZORPAY_SIM"
+  paymentMethod  String     // "CASH", "CARD", "UPI"
   paymentStatus  String     @default("COMPLETED")
   cashierId      String
   cashier        User       @relation(fields: [cashierId], references: [id])
