@@ -12,7 +12,9 @@
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
     "prisma:seed": "tsx prisma/seed.ts",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "db:sqlite": "tsx scripts/switch-db.ts sqlite",
+    "db:postgres": "tsx scripts/switch-db.ts postgres"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
